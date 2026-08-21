@@ -1,0 +1,168 @@
+;; data/sanctions-sources.edn
+;;
+;; The screening authorities this service screens against, and the regulation
+;; behind the one numeric default that is hard-coded in the request path.
+;;
+;; WHY THIS FILE EXISTS
+;; --------------------
+;; app/api/screen/transaction/route.ts falls back to a threshold of 10000 when
+;; ksqlDB does not answer, and components/rules-engine/* let an operator move
+;; name-match confidence and country risk. None of those numbers said whose rule
+;; they implement. A sanctions screener whose lists have no named publisher is
+;; not auditable: a reviewer cannot ask "which list, as published when, by whom".
+;;
+;; EVERY :source/url BELOW WAS FETCHED. The :source/http-status and
+;; :source/observed values are measurements from the run recorded in
+;; :catalog/measured-at -- not descriptions of what the endpoint ought to return.
+;; scripts/verify-sanctions-sources.cljs re-fetches all of them and fails when a
+;; citation stops resolving, so this file cannot rot quietly.
+;;
+;; :source/http-status is the status of a plain GET. The verifier issues a RANGE
+;; request (these documents run to 28 MB) and normalises 206 to 200 -- a partial
+;; response and a full response say the same thing about whether the citation is
+;; alive. 403/404/5xx are not normalised.
+
+{:schema "cloud-itonami.screener/sanctions-sources-v1"
+ :catalog/measured-at "2026-08-21T02:34:46Z"
+ :catalog/measured-from "curl, macOS, direct egress (no proxy)"
+
+ ;; ── Authoritative list publishers ────────────────────────────────────────────
+ :sources
+ [{:source/id :ofac-sdn
+   :source/authority "U.S. Department of the Treasury, Office of Foreign Assets Control (OFAC)"
+   :source/jurisdiction "US"
+   :source/list-name "Specially Designated Nationals and Blocked Persons List (SDN)"
+   :source/url "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML"
+   :source/format :xml
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:root-element "sdnList"
+                     :publish-date "08/20/2026"
+                     :record-count 19249
+                     :content-type "text/xml"
+                     :bytes 28875846}
+   :screening/used-for #{:name-screening}
+   :source/note "Primary US designation list. Drives the fuzzy-match confidence rule in components/rules-engine/name-screening-rules.tsx."}
+
+  {:source/id :ofac-consolidated
+   :source/authority "U.S. Department of the Treasury, Office of Foreign Assets Control (OFAC)"
+   :source/jurisdiction "US"
+   :source/list-name "Consolidated Sanctions List (non-SDN)"
+   :source/url "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONSOLIDATED.XML"
+   :source/format :xml
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:content-type "text/xml" :bytes 1062621}
+   :screening/used-for #{:name-screening}
+   :source/note "Non-SDN programmes (SSI, FSE, NS-MBS and others). Separate from SDN: a hit here does not imply blocking."}
+
+  {:source/id :un-sc-consolidated
+   :source/authority "United Nations Security Council"
+   :source/jurisdiction "UN"
+   :source/list-name "United Nations Security Council Consolidated List"
+   :source/url "https://scsanctions.un.org/resources/xml/en/consolidated.xml"
+   :source/format :xml
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:root-element "CONSOLIDATED_LIST"
+                     :date-generated "2026-08-20T23:00:03.545Z"
+                     :schema-location "https://www.un.org/sc/resources/sc-sanctions.xsd"
+                     :content-type "application/xml"
+                     :bytes 2176185}
+   :screening/used-for #{:name-screening}
+   :source/note "The list every member state is obliged to implement. Baseline for name screening in any jurisdiction."}
+
+  {:source/id :eu-fsf
+   :source/authority "European Commission, Service for Foreign Policy Instruments (FPI)"
+   :source/jurisdiction "EU"
+   :source/list-name "Consolidated list of persons, groups and entities subject to EU financial sanctions"
+   :source/url "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw"
+   :source/format :xml
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:root-element "export"
+                     :namespace "http://eu.europa.ec/fpi/fsd/export"
+                     :generation-date "2026-08-05T16:47:04.449+02:00"
+                     :global-file-id 184961
+                     :content-type "application/xml"}
+   :screening/used-for #{:name-screening}
+   :source/note "The token in the URL is the public download token the Commission publishes for anonymous access; it is not a credential belonging to this service."}
+
+  {:source/id :uk-ofsi-conlist
+   :source/authority "HM Treasury, Office of Financial Sanctions Implementation (OFSI)"
+   :source/jurisdiction "GB"
+   :source/list-name "UK Consolidated List of Financial Sanctions Targets"
+   :source/url "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.csv"
+   :source/format :csv
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:last-updated "03/06/2026"
+                     :first-columns ["Name 6" "Name 1" "Name 2" "Name 3" "Name 4" "Name 5" "Title"]
+                     :content-type "text/csv"
+                     :bytes 16641139}
+   :screening/used-for #{:name-screening}
+   :source/note "The six Name columns are why fuzzy matching is required rather than exact match: OFSI splits a single legal name across positional fields."}
+
+  {:source/id :uk-sanctions-list
+   :source/authority "Foreign, Commonwealth & Development Office (FCDO)"
+   :source/jurisdiction "GB"
+   :source/list-name "The UK Sanctions List"
+   :source/url "https://www.gov.uk/government/publications/the-uk-sanctions-list"
+   :source/format :html
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:content-type "text/html; charset=utf-8" :bytes 270622}
+   :screening/used-for #{:name-screening}
+   :source/note "Landing page carrying the current ODT/HTML designation records. Distinct from the OFSI CSV: FCDO designates, OFSI implements the financial measures."}
+
+  {:source/id :jp-mof-economic-sanctions
+   :source/authority "財務省 (Ministry of Finance, Japan)"
+   :source/jurisdiction "JP"
+   :source/list-name "資産凍結等経済制裁対象者リスト"
+   :source/url "https://www.mof.go.jp/policy/international_policy/gaitame_kawase/gaitame/economic_sanctions/list.html"
+   :source/format :html
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:content-type "text/html" :bytes 41687}
+   :screening/used-for #{:name-screening}
+   :source/note "Japan's asset-freeze designation list under 外国為替及び外国貿易法."}]
+
+ ;; ── Regulation behind a constant that is compiled into this service ──────────
+ ;;
+ ;; This is the part of the catalog that is load-bearing rather than descriptive.
+ ;; :threshold/code-path and :threshold/code-symbol name a literal in the source
+ ;; tree; the verifier reads that literal and fails when it and :threshold/value
+ ;; disagree. Changing the fallback threshold without moving the citation, or
+ ;; citing a rule that no longer says this number, both break the build.
+ :thresholds
+ [{:threshold/id :ctr-usd
+   :threshold/value 10000
+   :threshold/currency "USD"
+   :threshold/comparison :strictly-greater-than
+   :threshold/code-path "app/api/screen/transaction/route.ts"
+   :threshold/code-symbol "DEFAULT_TRANSACTION_THRESHOLD_USD"
+   :threshold/authority "Financial Crimes Enforcement Network (FinCEN), 31 CFR 1010.311"
+   :threshold/source-url "https://www.ecfr.gov/api/versioner/v1/full/2026-01-01/title-31.xml?section=1010.311&subtitle=B&chapter=X&part=1010&subpart=C"
+   :threshold/human-url "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1010/subpart-C/section-1010.311"
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :threshold/quoted-text
+   "Each financial institution other than a casino shall file a report of each deposit, withdrawal, exchange of currency or other payment or transfer, by, through, or to such financial institution which involves a transaction in currency of more than $10,000, except as otherwise provided in this section."
+   :threshold/note
+   "The regulation says 'more than $10,000', so the code comparison is > and not >=. The eCFR versioner URL is pinned to the 2026-01-01 edition, which is why the quoted text is reproducible; :threshold/human-url tracks the current edition and may drift from it."}]
+
+ ;; ── Statutory basis for the Japanese leg ─────────────────────────────────────
+ :statutes
+ [{:statute/id :jp-act-prevention-transfer-criminal-proceeds
+   :statute/law-id "419AC0000000022"
+   :statute/title "犯罪による収益の移転防止に関する法律"
+   :statute/abbrev "犯罪収益移転防止法"
+   :statute/law-number "平成十九年法律第二十二号"
+   :statute/promulgated "2007-03-31"
+   :source/url "https://laws.e-gov.go.jp/api/1/lawdata/419AC0000000022"
+   :source/format :xml
+   :source/http-status 200
+   :source/retrieved-at "2026-08-21T02:34:46Z"
+   :source/observed {:api "e-Gov 法令API v1" :result-code 0 :content-type "text/xml;charset=UTF-8"}
+   :statute/note
+   "Japan's customer-due-diligence and suspicious-transaction-reporting statute. Recorded because the JP threshold is NOT the US $10,000 figure -- a deployment screening JP flows must not inherit :ctr-usd. No JP threshold constant exists in this tree yet, so none is asserted here."}]}
