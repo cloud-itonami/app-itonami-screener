@@ -14,6 +14,19 @@ interface TransactionRule {
 }
 
 /**
+ * Fallback currency-transaction threshold, in USD, used when ksqlDB does not
+ * answer with a live rule.
+ *
+ * Provenance: data/sanctions-sources.edn -> :thresholds -> :ctr-usd, which cites
+ * 31 CFR 1010.311 ("a transaction in currency of more than $10,000"). That is
+ * also why the comparison below is `>` and not `>=`.
+ *
+ * scripts/verify-sanctions-sources.cljs reads this literal and fails when it and
+ * the catalog disagree, so the number cannot drift away from the rule it claims.
+ */
+const DEFAULT_TRANSACTION_THRESHOLD_USD = 10000
+
+/**
  * This API endpoint simulates a transaction screening service.
  * It receives transaction data, fetches the latest rule threshold from ksqlDB,
  * and then applies the rule to screen the transaction.
@@ -37,7 +50,7 @@ export async function POST(request: Request) {
 
     // 3. Extract the threshold from the query result.
     // Use a default value if the rule is not found for any reason.
-    const threshold = results.length > 0 ? results[0].THRESHOLD : 10000 // Default threshold
+    const threshold = results.length > 0 ? results[0].THRESHOLD : DEFAULT_TRANSACTION_THRESHOLD_USD
     console.log(`Current live transaction threshold is: ${threshold}`)
 
     // 4. Apply the rule to the incoming transaction
