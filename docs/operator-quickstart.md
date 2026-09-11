@@ -57,7 +57,7 @@ compiled into the request path. Start offline, because the offline leg is the
 one that checks *this tree* rather than the outside world:
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljk . --offline
+kbb --backend sci scripts/verify-sanctions-sources.cljk . --offline
 ```
 
 Observed:
@@ -109,7 +109,7 @@ and this line goes `FAIL`.
 ## 3. Check that the citations still resolve
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljk .
+kbb --backend sci scripts/verify-sanctions-sources.cljk .
 ```
 
 Observed **today**:
@@ -245,7 +245,7 @@ anything that currently runs: `KSQLDB_ENDPOINT`, `KSQLDB_KEY`,
 Only step 3, and treat its exit code exactly as the table in step 2 says:
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljk .
+kbb --backend sci scripts/verify-sanctions-sources.cljk .
 ```
 
 Sanctions lists are republished continuously — OFAC's SDN list carried a publish
