@@ -1,4 +1,4 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; scripts/verify-sanctions-sources.cljk
 ;;
 ;; Checks data/sanctions-sources.edn against the world it cites and against the
@@ -15,7 +15,7 @@
 ;; 3 and says so, and no run without a SCANNED line may be read as clean.
 ;;
 ;; Usage:
-;;   nbb scripts/verify-sanctions-sources.cljk [<dir>] [--offline]
+;;   kbb --backend sci scripts/verify-sanctions-sources.cljk [<dir>] [--offline]
 ;;
 ;; <dir> defaults to the repository root inferred from this script's location and
 ;; must come FIRST if given; --offline skips the network leg and still checks the
@@ -28,8 +28,8 @@
             ["path" :as path]))
 
 ;; *command-line-args* is nbb's own vector and already excludes the script path.
-;; Do NOT rebuild this from process.argv: the offsets differ between `nbb x.cljs`
-;; and `npx --yes nbb x.cljs`, and getting it wrong makes the script read its own
+;; Do NOT rebuild this from process.argv: the offsets differ between `kbb --backend sci x.cljk`
+;; and `npx --yes kbb --backend sci x.cljk`, and getting it wrong makes the script read its own
 ;; path as <dir> and exit 3 -- which looks exactly like "the file is missing".
 (def argv (vec *command-line-args*))
 (def flags (set (filter #(str/starts-with? % "--") argv)))

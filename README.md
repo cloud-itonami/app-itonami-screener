@@ -26,8 +26,8 @@ running anything.** It walks the check, explains why it exits `3` rather than
 not startable and why.
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljk .            # 0 clean · 1 broken · 3 could not measure
-nbb scripts/verify-sanctions-sources.cljk . --offline  # tree-only; always 3
+kbb --backend sci scripts/verify-sanctions-sources.cljk .            # 0 clean · 1 broken · 3 could not measure
+kbb --backend sci scripts/verify-sanctions-sources.cljk . --offline  # tree-only; always 3
 ```
 
 ## Provenance
