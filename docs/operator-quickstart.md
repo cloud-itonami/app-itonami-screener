@@ -16,7 +16,7 @@ Measured 2026-08-30 against `53cf85e`.
 
 | Part | State | Command |
 |---|---|---|
-| Citation verifier (`scripts/verify-sanctions-sources.cljs`) | **runs** | step 2 / step 3 below |
+| Citation verifier (`scripts/verify-sanctions-sources.cljk`) | **runs** | step 2 / step 3 below |
 | Next.js UI (`app/`, `components/`) | **cannot start** — see step 4 | — |
 | Screening API (`app/api/screen/transaction`) | **cannot answer** — see step 5 | — |
 | Rules-change API (`app/api/rules/update`) | publishes nothing — see step 5 | — |
@@ -57,7 +57,7 @@ compiled into the request path. Start offline, because the offline leg is the
 one that checks *this tree* rather than the outside world:
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljs . --offline
+nbb scripts/verify-sanctions-sources.cljk . --offline
 ```
 
 Observed:
@@ -109,7 +109,7 @@ and this line goes `FAIL`.
 ## 3. Check that the citations still resolve
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljs .
+nbb scripts/verify-sanctions-sources.cljk .
 ```
 
 Observed **today**:
@@ -245,7 +245,7 @@ anything that currently runs: `KSQLDB_ENDPOINT`, `KSQLDB_KEY`,
 Only step 3, and treat its exit code exactly as the table in step 2 says:
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljs .
+nbb scripts/verify-sanctions-sources.cljk .
 ```
 
 Sanctions lists are republished continuously — OFAC's SDN list carried a publish

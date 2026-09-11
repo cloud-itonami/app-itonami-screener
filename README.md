@@ -11,7 +11,7 @@ FCDO Sanctions List, and Japan's 財務省 asset-freeze list.
 
 Only one part of this repository is a running program today.
 
-- **Runs:** `scripts/verify-sanctions-sources.cljs` re-fetches every citation in
+- **Runs:** `scripts/verify-sanctions-sources.cljk` re-fetches every citation in
   the catalog and reads the CTR threshold constant back out of the TypeScript,
   so neither the list publishers nor the regulation behind
   `DEFAULT_TRANSACTION_THRESHOLD_USD` can drift without failing the check.
@@ -26,8 +26,8 @@ running anything.** It walks the check, explains why it exits `3` rather than
 not startable and why.
 
 ```sh
-nbb scripts/verify-sanctions-sources.cljs .            # 0 clean · 1 broken · 3 could not measure
-nbb scripts/verify-sanctions-sources.cljs . --offline  # tree-only; always 3
+nbb scripts/verify-sanctions-sources.cljk .            # 0 clean · 1 broken · 3 could not measure
+nbb scripts/verify-sanctions-sources.cljk . --offline  # tree-only; always 3
 ```
 
 ## Provenance
