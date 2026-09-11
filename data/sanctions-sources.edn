@@ -14,7 +14,7 @@
 ;; EVERY :source/url BELOW WAS FETCHED. The :source/http-status and
 ;; :source/observed values are measurements from the run recorded in
 ;; :catalog/measured-at -- not descriptions of what the endpoint ought to return.
-;; scripts/verify-sanctions-sources.cljs re-fetches all of them and fails when a
+;; scripts/verify-sanctions-sources.cljk re-fetches all of them and fails when a
 ;; citation stops resolving, so this file cannot rot quietly.
 ;;
 ;; :source/http-status is the status of a plain GET. The verifier issues a RANGE

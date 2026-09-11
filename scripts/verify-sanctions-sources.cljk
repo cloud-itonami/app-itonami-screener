@@ -1,5 +1,5 @@
 #!/usr/bin/env nbb
-;; scripts/verify-sanctions-sources.cljs
+;; scripts/verify-sanctions-sources.cljk
 ;;
 ;; Checks data/sanctions-sources.edn against the world it cites and against the
 ;; source tree it claims to describe.
@@ -15,7 +15,7 @@
 ;; 3 and says so, and no run without a SCANNED line may be read as clean.
 ;;
 ;; Usage:
-;;   nbb scripts/verify-sanctions-sources.cljs [<dir>] [--offline]
+;;   nbb scripts/verify-sanctions-sources.cljk [<dir>] [--offline]
 ;;
 ;; <dir> defaults to the repository root inferred from this script's location and
 ;; must come FIRST if given; --offline skips the network leg and still checks the

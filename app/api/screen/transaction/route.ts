@@ -21,7 +21,7 @@ interface TransactionRule {
  * 31 CFR 1010.311 ("a transaction in currency of more than $10,000"). That is
  * also why the comparison below is `>` and not `>=`.
  *
- * scripts/verify-sanctions-sources.cljs reads this literal and fails when it and
+ * scripts/verify-sanctions-sources.cljk reads this literal and fails when it and
  * the catalog disagree, so the number cannot drift away from the rule it claims.
  */
 const DEFAULT_TRANSACTION_THRESHOLD_USD = 10000
